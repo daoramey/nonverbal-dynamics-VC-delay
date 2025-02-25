@@ -30,12 +30,6 @@ This paper examines the impact of transmission delay (with 3 levels of transmiss
 - Linear Mixed Models (LMMs) to analyze gaze and motion behaviors.
 - Growth Curve Analysis (GCA) to track changes in coordination over time
 
-## 🛠 Setup
-To set up the R environment, install dependencies:
-```r
-install.packages(c("ggplot2", "dplyr", "lme4", "crqa", "rstatix", "sjPlot", "performance"))
-```
-
 **Citation**
 If you use this work, please cite:
 ```@inproceedings{diao2024effects,
