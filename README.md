@@ -38,19 +38,12 @@ install.packages(c("ggplot2", "dplyr", "lme4", "crqa", "rstatix", "sjPlot", "per
 
 **Citation**
 If you use this work, please cite:
-```@inproceedings{10.1145/3678957.3685733,
-author = {Diao, Chenyao and Arevalo Arboleda, Stephanie and Raake, Alexander},
-title = {Nonverbal Dynamics in Dyadic Videoconferencing Interaction: The Role of Video Resolution and Conversational Quality},
-year = {2024},
-isbn = {9798400704628},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-url = {https://doi.org/10.1145/3678957.3685733},
-doi = {10.1145/3678957.3685733},
-booktitle = {Proceedings of the 26th International Conference on Multimodal Interaction},
-pages = {387–396},
-numpages = {10},
-location = {San Jose, Costa Rica},
-series = {ICMI '24}
+```@inproceedings{diao2024effects,
+  title={Effects of Delay on Nonverbal Behavior and Interpersonal Coordination in Video Conferencing},
+  author={Diao, Chenyao and Arboleda, Stephanie Ar{\'e}valo and Raake, Alexander},
+  booktitle={2024 IEEE 26th International Workshop on Multimedia Signal Processing (MMSP)},
+  pages={1--6},
+  year={2024},
+  organization={IEEE}
 }
 ```
