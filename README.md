@@ -1,4 +1,4 @@
-# Nonverbal Dynamics in Dyadic Videoconferencing Interaction
+# Effects of Delay on Nonverbal Behavior and Interpersonal Coordination in Video Conferencing
 
 This repository contains R scripts and data for the paper:
 
@@ -7,6 +7,7 @@ This repository contains R scripts and data for the paper:
 
 The R scripts are for analyzing behavioral coordination data using Cross-Recurrence Quantification Analysis (CRQA), Growth Curve Analysis (GCA), and Linear Mixed Models (LMMs).
 The analysis is focused on body motion and gaze behavior under different delay conditions.
+
 ## 📖 Abstract
 This paper examines the impact of transmission delay (with 3 levels of transmission delay) on nonverbal behavior and interpersonal coordination during videoconferencing. Webcam recordings were analyzed to extract nonverbal cues and assess how delay disrupts body movement synchrony and facial expression mimicry.
 
