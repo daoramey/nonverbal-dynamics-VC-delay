@@ -1,0 +1,229 @@
+```{r}
+library(crqa)
+library(readr)
+library(ggplot2)
+library(rlist)
+```
+# CRQA
+## Calculate parameters
+```{r}
+## calculate embed, delay, and radius
+folder_path <- "../data/body_motion/1080p_1000ms"
+files <- list.files(path = folder_path, full.names = TRUE)
+d <- list()
+r <- list()
+e <- list()
+## Arguments setting 
+par <- list(method = "crqa",
+            metric = "euclidean",
+            maxlag = 50,
+            maxEmb = 20,
+            radiusspan = 100,
+            radiussample = 100,
+            normalize = 2, # z-score normalized
+            rescale = 1, # mean distance of the matrix
+            mindiagline = 2,
+            minvertline = 2,
+            tw = 0,
+            whiteline = FALSE,
+            recpt = FALSE,
+            side = "both",
+            datatype = "continuous",
+            typeami = "mindip",
+            fnnpercent = 10
+            )
+#
+for (file_path in files){
+  ## read motion energy data
+  mea_data <- read.csv(file_path, sep="")
+  print(file_path)
+  ts1 <- mea_data$Participant_A
+  ts2 <- mea_data$Participant_B
+  res <- try(optimizeParam(ts1, ts2, par, min.rec = 2, max.rec = 5))
+  if (inherits(res, "try-error")){
+    print("error")
+  } else {
+    print(unlist(res))
+    d <- list.append(d, res$delay)
+    r <- list.append(r, res$radius)
+    e <- list.append(e, res$emddim)
+  }
+}
+```
+
+```{r}
+## calculate embed, delay, and radius
+folder_path <- "../data/body_motion/1080p_500ms"
+files <- list.files(path = folder_path, full.names = TRUE)
+d <- list()
+r <- list()
+e <- list()
+## Arguments setting 
+par <- list(method = "crqa",
+            metric = "euclidean",
+            maxlag = 50,
+            maxEmb = 20,
+            radiusspan = 100,
+            radiussample = 100,
+            normalize = 2, # z-score normalized
+            rescale = 1, # mean distance of the matrix
+            mindiagline = 2,
+            minvertline = 2,
+            tw = 0,
+            whiteline = FALSE,
+            recpt = FALSE,
+            side = "both",
+            datatype = "continuous",
+            typeami = "mindip",
+            fnnpercent = 10
+            )
+#
+for (file_path in files){
+  ## read motion energy data
+  mea_data <- read.csv(file_path, sep="")
+  print(file_path)
+  ts1 <- mea_data$Participant_A
+  ts2 <- mea_data$Participant_B
+  res <- try(optimizeParam(ts1, ts2, par, min.rec = 2, max.rec = 5))
+  if (inherits(res, "try-error")){
+    print("error")
+  } else {
+    print(unlist(res))
+    d <- list.append(d, res$delay)
+    r <- list.append(r, res$radius)
+    e <- list.append(e, res$emddim)
+  }
+}
+```
+
+```{r}
+## calculate embed, delay, and radius
+folder_path <- "../data/body_motion/1080p_0ms"
+files <- list.files(path = folder_path, full.names = TRUE)
+d <- list()
+r <- list()
+e <- list()
+## Arguments setting 
+par <- list(method = "crqa",
+            metric = "euclidean",
+            maxlag = 50,
+            maxEmb = 20,
+            radiusspan = 100,
+            radiussample = 100,
+            normalize = 2, # z-score normalized
+            rescale = 1, # mean distance of the matrix
+            mindiagline = 2,
+            minvertline = 2,
+            tw = 0,
+            whiteline = FALSE,
+            recpt = FALSE,
+            side = "both",
+            datatype = "continuous",
+            typeami = "mindip", # average mutual information
+            fnnpercent = 10 # false nearest neighbours
+            )
+#
+for (file_path in files){
+  ## read motion energy data
+  mea_data <- read.csv(file_path, sep="")
+  print(file_path)
+  ts1 <- mea_data$Participant_A
+  ts2 <- mea_data$Participant_B
+  res <- try(optimizeParam(ts1, ts2, par, min.rec = 2, max.rec = 5))
+  if (inherits(res, "try-error")){
+    print("error")
+  } else {
+    print(unlist(res))
+    d <- list.append(d, res$delay)
+    r <- list.append(r, res$radius)
+    e <- list.append(e, res$emddim)
+  }
+}
+```
+
+## Perform CRQA
+```{r}
+# delay (mean)
+# [1] 30.62857  28.51515  29.91176 = 30
+# embed (max)
+# [1] 5
+# radius (max)
+# [1] 0.2611798  0.3324761  0.3195968 = 0.30
+## set parameters
+delay <- 30
+embed <- 5
+radius <- 0.3
+rescale <- 1
+normalize <- 2
+mindiagline <- 2
+minvertline <- 2
+tw <- 0
+whiteline <- FALSE
+recpt <- FALSE
+side <- "both"
+method <- "crqa" 
+metric <- "euclidean"
+datatype <- "continuous"
+trend <- FALSE
+# 
+folder_path <- "../data/body_motion/1080p_1000ms"
+output_folder <- "../data/crqa/1080p_1000ms"
+#
+files <- list.files(path = folder_path, full.names = TRUE)
+for (file_path in files){
+  print(file_path)
+  f <- basename(file_path)
+  crqa_path <- file.path(output_folder, f)
+  ## read motion energy data
+  mea_data <- read.csv(file_path, sep="")
+  ts1 <- mea_data$Participant_A
+  ts2 <- mea_data$Participant_B
+  ## perform crqa
+  ans <- crqa(ts1, ts2, delay, embed, rescale, radius, normalize,
+              mindiagline, minvertline, tw, whiteline, recpt, side,
+              method, metric, datatype)
+  write.csv(ans[1:10], crqa_path)
+}
+```
+
+## Diagonal cross-recurrence profile
+```{r}
+## lagged cross recurrence analysis
+## set parameters
+delay <- 30
+embed <- 5
+radius <- 0.3
+rescale <- 1
+normalize <- 2
+mindiagline <- 2
+minvertline <- 2
+tw <- 0
+whiteline <- FALSE
+recpt <- FALSE
+side <- "both"
+method <- "crqa" 
+metric <- "euclidean"
+datatype <- "continuous"
+trend <- FALSE
+windowsize <- 150 # +-5s window, therefore, 150 samples 5*30fps
+# 
+folder_path <- "../data/body_motion/1080p_0ms"
+output_folder <- "../data/dcrp/1080p_0ms"
+#
+files <- list.files(path = folder_path, full.names = TRUE)
+for (file_path in files){
+  print(file_path)
+  f <- basename(file_path)
+  lag_crqa_path <- file.path(output_folder, f)
+  ## read motion energy data
+  mea_data <- read.csv(file_path, sep="")
+  ts1 <- mea_data$Participant_A
+  ts2 <- mea_data$Participant_B
+  ## perform crqa
+  res <- drpfromts(ts1, ts2, windowsize, radius, delay, embed, rescale, normalize,
+                   mindiagline, minvertline, tw, whiteline, recpt, side, method, metric,
+                   datatype)
+  #print(res)
+  write.csv(res, lag_crqa_path)
+}
+```

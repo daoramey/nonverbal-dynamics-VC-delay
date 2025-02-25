@@ -1,0 +1,327 @@
+
+```{r}
+library(ggplot2)
+library(broom.mixed)
+library(dplyr)
+library(rstatix)
+library(readxl)
+library(purrr)
+library(dunn.test)
+library(lmerTest)
+library(lme4)
+library(Matrix)
+library(ggpubr)
+library(MASS)
+library(ez)
+library(ARTool)
+library(emmeans)
+library(stargazer)
+library(sjPlot)
+library(autoReg)
+library(broom)
+library(glmnet)
+library(mediation)
+library(lavaan)
+library(readr)
+```
+# Delay condition analysis
+```{r}
+df <- read_excel("../data/df_bm_g_crqa.xlsx")
+df$condition <- factor(as.character(df$condition), levels = c("0ms", "500ms", "1000ms"))
+df$participant <- factor(as.character(df$participant))
+head(df)
+```
+## Body motion analysis
+```{r}
+# Perform z-score normalization
+df <- df %>%
+  mutate(avg_bm_z = scale(avg_bm))
+```
+### Average body movement grouped by delay
+```{r}
+# Summary statistics
+stats_delay <- df %>%
+  group_by(condition) %>%
+  get_summary_stats(avg_bm_z, type = "common")
+# Export to csv
+#write.csv(stats_delay, "stats_results/summary_stats_body_motion.csv", row.names = FALSE)
+#
+
+# Open a PDF device
+pdf("plots/boxplot_body_motion.pdf", width = 4, height = 4)
+
+# Box plot
+ggplot(df, aes(x=condition, y=avg_bm_z)) + geom_boxplot(outlier.shape=NA) +
+  labs(x="Delay", y="Mean body motion")
+
+dev.off()
+```
+### Linear main effect regression modeling
+```{r}
+fit.bm <- lmer(avg_bm_z ~ condition + (1|participant), data = df, REML = FALSE)
+summary(fit.bm)
+performance::icc(fit.bm)
+fit.bm %>% anova()
+# Extract the model results
+sjPlot::tab_model(fit.bm)
+tab_model(fit.bm, file="models/fit_bm.html")
+# Extract the model results into a CSV file
+tidy_fit <- tidy(fit.bm)
+write.csv(tidy_fit, "../results/models/fit_bm_results.csv", row.names = FALSE)
+```
+## Gaze behavior analysis
+```{r}
+# Perform z-score normalization
+df <- df %>%
+  mutate(freq_face_z = scale(freq_face))
+df <- df %>%
+  mutate(time_face_z = scale(time_face))
+df <- df %>%
+  mutate(time_card_z = scale(time_card))
+df <- df %>%
+  mutate(freq_card_z = scale(freq_card))
+head(df)
+```
+
+### Face
+#### Satistics
+```{r}
+# Summary statistics
+df %>%
+  group_by(condition) %>%
+  get_summary_stats(time_face_z, type = "common")
+# Export to csv
+#write.csv(stats_delay, "summary_stats_condition.csv", row.names = FALSE)
+#
+df %>%
+  group_by(condition) %>%
+  get_summary_stats(freq_face_z, type = "common")
+#write.csv(stats_cq, "summary_stats_cq.csv", row.names = FALSE)
+
+# Open a PDF device
+pdf("plots/boxplot_looking_partner_t.pdf", width = 4, height = 4)
+# Box plot
+ggplot(df, aes(x=condition, y=time_face_z)) + geom_boxplot(outlier.shape=NA) +
+  labs(x="Delay", y="Total time of looking-partner")
+dev.off()
+
+# Open a PDF device
+pdf("../results/plots/boxplot_looking_partner_n.pdf", width = 4, height = 4)
+# Box plot
+ggplot(df, aes(x=condition, y=freq_face_z)) + geom_boxplot(outlier.shape=NA) +
+  labs(x="Delay", y="Total number of looking-partner")
+dev.off()
+```
+
+#### Time face Linear main effect regression modeling
+```{r}
+fit.tf <- lmer(time_face_z ~ condition + (1|participant), data = df, REML = FALSE)
+summary(fit.tf)
+performance::icc(fit.tf)
+fit.tf %>% anova()
+# Extract the model results
+sjPlot::tab_model(fit.tf)
+tab_model(fit.tf, file="models/fit_tf.html")
+# Extract the model results into a CSV file
+tidy_fit <- tidy(fit.tf)
+write.csv(tidy_fit, "../results/models/fit_tf_results.csv", row.names = FALSE)
+```
+#### Frequency face Linear main effect regression modeling
+```{r}
+fit.ff <- lmer(freq_face_z ~ condition + (1|participant), data = df, REML = FALSE)
+summary(fit.ff)
+performance::icc(fit.ff)
+fit.ff %>% anova()
+# Extract the model results
+sjPlot::tab_model(fit.ff)
+tab_model(fit.ff, file="models/fit_ff.html")
+# Extract the model results into a CSV file
+tidy_fit <- tidy(fit.ff)
+write.csv(tidy_fit, "../results/models/fit_ff_results.csv", row.names = FALSE)
+```
+### Card
+#### Satistics
+```{r}
+# Summary statistics
+df %>%
+  group_by(condition) %>%
+  get_summary_stats(time_card_z, type = "common")
+# Export to csv
+#write.csv(stats_delay, "summary_stats_condition.csv", row.names = FALSE)
+#
+df %>%
+  group_by(condition) %>%
+  get_summary_stats(freq_card_z, type = "common")
+#write.csv(stats_cq, "summary_stats_cq.csv", row.names = FALSE)
+```
+#### Time card Linear main effect regression modeling
+```{r}
+fit.tc <- lmer(time_card_z ~ condition + cq + (1|participant), data = df, REML = FALSE)
+summary(fit.tc)
+performance::icc(fit.tc)
+fit.tc %>% anova()
+```
+#### Freq card Linear main effect regression modeling
+```{r}
+fit.fc <- lmer(freq_card_z ~ condition + (1|participant), data = df, REML = FALSE)
+summary(fit.fc)
+performance::icc(fit.fc)
+fit.fc %>% anova()
+```
+### Room
+#### Satistics
+```{r}
+# Summary statistics
+df %>%
+  group_by(condition) %>%
+  get_summary_stats(time_room, type = "common")
+# Export to csv
+#write.csv(stats_delay, "summary_stats_condition.csv", row.names = FALSE)
+#
+df %>%
+  group_by(condition) %>%
+  get_summary_stats(freq_room, type = "common")
+#write.csv(stats_cq, "summary_stats_cq.csv", row.names = FALSE)
+```
+#### Time room Linear main effect regression modeling
+```{r}
+fit.tr <- lmer(time_room ~ condition + (1|participant), data = df, REML = FALSE)
+summary(fit.tr)
+performance::icc(fit.tr)
+fit.tr %>% anova()
+```
+#### Freq room Linear main effect regression modeling
+```{r}
+fit.fr <- lmer(freq_room ~ condition + (1|participant), data = df, REML = FALSE)
+summary(fit.fr)
+performance::icc(fit.fr)
+fit.fr %>% anova()
+```
+## Body movement coordination
+### CRQA
+#### %REC
+```{r}
+# Perform z-score normalization
+df <- df %>%
+  mutate(REC_z = scale(REC))
+head(df)
+```
+```{r}
+# Open a PDF device
+pdf("../results/plots/boxplot_REC.pdf", width = 4, height = 4)
+# Box plot
+ggplot(df, aes(x=condition, y=REC_z)) + geom_boxplot(outlier.shape=NA) +
+  labs(x="Delay", y="Coordination similarity (%REC)")
+dev.off()
+```
+
+```{r}
+fit.rec <- lmer(REC_z ~ condition + (1|participant), data = df, REML = FALSE)
+summary(fit.rec)
+performance::icc(fit.rec)
+fit.rec %>% anova()
+# Extract the model results
+sjPlot::tab_model(fit.rec)
+tab_model(fit.rec, file="../results/models/fit_rec.html")
+```
+#### %DET
+```{r}
+# Perform z-score normalization
+df <- df %>%
+  mutate(DET_z = scale(DET))
+
+# Open a PDF device
+pdf("../results/plots/boxplot_DET.pdf", width = 4, height = 4)
+# Box plot
+ggplot(df, aes(x=condition, y=DET_z)) + geom_boxplot(outlier.shape=NA) +
+  labs(x="Delay", y="Coordination organization (%DET)")
+dev.off()
+
+fit.det <- lmer(DET_z ~ condition + (1|participant), data = df, REML = FALSE)
+summary(fit.det)
+performance::icc(fit.det)
+fit.det %>% anova()
+# Extract the model results
+sjPlot::tab_model(fit.det)
+tab_model(fit.det, file="../results/models/fit_det.html")
+```
+#### maxLine
+```{r}
+# Perform z-score normalization
+df <- df %>%
+  mutate(maxLine_z = scale(maxLine))
+
+# Open a PDF device
+pdf("../results/plots/boxplot_maxLine.pdf", width = 4, height = 4)
+# Box plot
+ggplot(df, aes(x=condition, y=maxLine_z)) + geom_boxplot(outlier.shape=NA) +
+  labs(x="Delay", y="Coordination stability (maxLine)")
+dev.off()
+
+fit.maxl <- lmer(maxLine_z ~ condition + (1|participant), data = df, REML = FALSE)
+summary(fit.maxl)
+performance::icc(fit.maxl)
+fit.maxl %>% anova()
+# Extract the model results
+sjPlot::tab_model(fit.maxl)
+tab_model(fit.maxl, file="../results/models/fit_maxl.html")
+```
+## DCRP & Growth curve analysis (using linear mixed effect model or polynomial regression to capture the growth trajectory)
+```{r}
+df_drp <- read_csv("../data/df_dcrp.csv")
+df_drp$condition <- factor(as.character(df_drp$condition), levels = c("0ms", "500ms", "1000ms"))
+df_drp$ID <- factor(as.character(df_drp$ID))
+head(df_drp)
+```
+### Perform GRA
+```{r}
+# centering time lag
+df_drp = df_drp %>% 
+  mutate(Lag = scale(X))
+# normalization
+df_drp = df_drp %>% 
+  mutate(RR = scale(profile))
+head(df_drp)
+```
+
+```{r}
+fit.gra <- lmer(RR ~ poly(Lag, 2)*condition + (1 | ID), data = df_drp, REML = FALSE)
+summary(fit.gra)
+#plot(fit.gra)
+performance::icc(fit.gra)
+fit.gra %>% anova()
+# Extract the model results
+sjPlot::tab_model(fit.gra)
+tab_model(fit.gra, file="../results/models/gra.html")
+sjPlot::plot_model(fit.gra, type="pred", terms=c("Lag[all]", "condition"))
+```
+
+
+### Line Plot
+```{r}
+new <- df_drp %>%
+  group_by(condition, X) %>%
+  summarise(RR = mean(profile))
+head(new)
+```
+```{r}
+df_0 <- new[new["condition"] == "0ms", ]
+# Open a PDF device
+pdf("../results/plots/lineplot_RR_0ms.pdf", width = 4, height = 3)
+ggplot(data=df_0, aes(x=X, y = RR))+geom_line(size=1.5)+ylim(0.17,0.24)+xlab("Lag")+ylab("RR")
+dev.off()
+```
+```{r}
+df_500 <- new[new["condition"] == "500ms", ]
+pdf("../results/plots/lineplot_RR_500ms.pdf", width = 4, height = 3)
+ggplot(data=df_500, aes(x=X, y = RR))+geom_line(size=1.5)+ylim(0.17,0.24)+xlab("Lag")+ylab("RR")
+dev.off()
+```
+```{r}
+df_1000 <- new[new["condition"] == "1000ms", ]
+pdf("../results/plots/lineplot_RR_1000ms.pdf", width = 4, height = 3)
+ggplot(data=df_1000, aes(x=X, y = RR))+geom_line(size=1.5)+ylim(0.17,0.24)+xlab("Lag")+ylab("RR")
+dev.off()
+```
+
+
