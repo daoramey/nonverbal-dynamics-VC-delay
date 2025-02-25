@@ -3,9 +3,10 @@
 This repository contains R scripts and data for the paper:
 
 > **C. Diao, S. A. Arboleda, and A. Raake.** Effects of Delay on Nonverbal Behavior and Interpersonal Coordination in Video Conferencing. In 2024 IEEE 26th International Workshop on Multimedia Signal Processing (MMSP), West Lafayette, IN, USA, 2024, pp. 1-6, doi:10.1109/MMSP61759.2024.10743300.  
+
+
 The R scripts are for analyzing behavioral coordination data using Cross-Recurrence Quantification Analysis (CRQA), Growth Curve Analysis (GCA), and Linear Mixed Models (LMMs).
 The analysis is focused on body motion and gaze behavior under different delay conditions.
-
 ## 📖 Abstract
 This paper examines the impact of transmission delay (with 3 levels of transmission delay) on nonverbal behavior and interpersonal coordination during videoconferencing. Webcam recordings were analyzed to extract nonverbal cues and assess how delay disrupts body movement synchrony and facial expression mimicry.
 
